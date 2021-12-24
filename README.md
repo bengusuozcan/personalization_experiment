@@ -1,9 +1,9 @@
 
-Author: Bengusu Ozcan, MA Candidate in Quantitative Methods in Social Sciences, Columbia University
+**Author:** Bengusu Ozcan, MA Candidate in Quantitative Methods in Social Sciences, Columbia University
 
-Supervisor: Dr. Rachel Cummings,  Assistant Professor, Columbia University School of Engineering
+**Supervisor:** [Dr. Rachel Cummings](https://sites.gatech.edu/rachel-cummings/),  Assistant Professor, Columbia University School of Engineering
 
-Principal Investigator for IRB: Dr. Gregory Eirich, Director of Quantitative Methods in Social Sciences Program, Columbia University
+**Principal Investigator for IRB**: [Dr. Gregory Eirich](https://datascience.columbia.edu/people/greg-eirich/), Director of Quantitative Methods in Social Sciences Program, Columbia University
 
 Paid streaming services such as Netflix or Spotify do not leverage paid members’ data for online advertising and therefore not as much under attention as other platforms like Facebook or Google in user data research and ethics discussions. 
 However, these platforms leverage user data to improve their personalization algorithms which eventually serves to gain new users and retain existing ones. 
@@ -29,7 +29,10 @@ Current Status: IRB Review in progress
 
 
 [Thesis paper - in progress](https://docs.google.com/document/d/17Dx-AoC2EmwZT_ACsCKQeqgVv6iY3nsX/edit)
+
 [Former research paper that the motivation of this study is based on](https://drive.google.com/file/d/1wE5m3WhmWBPhcZlvpQJUdVGe4XPFu0rG/view)
+
 [Full breakdown of Control Group Questions and Survey Flow](https://docs.google.com/presentation/d/16bSotQaHCHuneAB8LdRDo0jfdE7gLn2c/edit)
+
 [Full breakdown of Treatment Group Questions and Survey Flow](https://docs.google.com/presentation/d/1ijSOqLLCtlGK4sT2G1b1dR4JkNE5BMh6/edit)
 Contact: bo2297@columbia.edu
