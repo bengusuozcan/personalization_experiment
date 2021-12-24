@@ -1,0 +1,365 @@
+---
+title: "SHOULD PERSONALIZATION BE OPTIONAL ON PAID STREAMING PLATFORMS? VALUE OF USER DATA FOR PERSONALIZATION IN PAID STREAMING PLATFORMS AS AN INDIRECT COMPENSATION"
+author: "Bengusu Ozcan"
+date: "12/19/2021"
+output: html_document
+note: For the data files and reference on which short variable names stand for which fields, refer to the following Github link ""
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Please install necessary packages as below if not installed yet
+#install.packages("dplyr")
+#install.packages("tidyverse")
+#install.packages("ggplot2")
+#install.packages("gt")
+#install.packages("psych")
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(gt)
+library(psych)
+```
+
+**Data Ingestion**
+
+```{r}
+#read Cleaned_Modified_Personalization_Preferences_12-18-21-Qualtrics.csv from your local drive
+data <- read.csv(file.choose())
+```
+
+```{r}
+#separate data into control and treatment groups. will be used in some of the analyses. 
+data_control <- data %>% filter(group=='control')
+data_treatment <- data %>% filter(group=='treatment')
+```
+
+**Summary statistics for main dependent variables: D1, D2, D3, D4**
+
+```{r}
+describe(data$fee)
+describe(data_control$fee)
+describe(data_treatment$fee)
+describe(data$a_minus_b)
+describe(data_control$a_minus_b)
+describe(data_treatment$a_minus_b)
+describe(data$fee_2_1)
+describe(data_control$fee_2_1)
+describe(data_treatment$fee_2_1)
+describe(data$fee_2_2)
+describe(data_control$fee_2_2)
+describe(data_treatment$fee_2_2)
+```
+
+```{r}
+#Variance of main dependent variables
+var(data$fee)
+var(data_control$fee)
+var(data_treatment$fee)
+var(data$a_minus_b)
+var(data_control$a_minus_b)
+var(data_treatment$a_minus_b)
+var(data$fee_2_1)
+var(data_control$fee_2_1)
+var(data_treatment$fee_2_1)
+var(data$fee_2_2)
+var(data_control$fee_2_2)
+var(data_treatment$fee_2_2)
+```
+
+
+**Hypothesis Testing**
+
+1) Hypothesis A
+
+Normality test 
+
+```{r}
+#D1 is not normally distributed
+shapiro.test(data$fee)
+```
+
+F-test for equal variances
+
+```{r}
+#there is no significant difference between the variances of the two sets of data
+ftest1 <- var.test(fee ~ group, data = data)
+ftest1
+```
+
+2 sample t-test
+```{r}
+#No statistically significant difference between control and treatment groups
+HA_ttest <-t.test(fee ~ group, data = data, var.equal=TRUE)
+HA_ttest
+```
+
+1) Hypothesis B
+
+
+Normality test
+```{r}
+#D2 is not normally distributed
+shapiro.test(data$a_minus_b)
+```
+
+```{r}
+#D3 is not normally distributed
+shapiro.test(data$fee_2_1)
+```
+
+```{r}
+#D4 is not normally distributed
+shapiro.test(data$fee_2_2)
+```
+
+Whitney Mann test on a_minus_b based on control and treatment groups
+
+```{r}
+#there is no significant difference between the variances of the two sets of data
+ftest1 <- var.test(a_minus_b ~ group, data = data)
+ftest1
+```
+
+2 sample t-test
+
+```{r}
+#No statistically significant difference between control and treatment groups
+HB_ttest <-t.test(a_minus_b ~ group, data = data)
+HB_ttest
+```
+
+
+Visualization on D3, D4, D11 for supporting the test on HB
+
+```{r}
+data %>% group_by(group, equal_fee) %>% summarise(count=n()) %>% ggplot(aes(x = equal_fee, y=count, fill=group))+
+  geom_bar(stat='identity', position="dodge") +
+  labs(x = "Service Type", y = "Number of people",
+       title = "Which User Should Pay a Higher Service Fee?", caption="User A opts in for personalziation while User B opts out")+
+  theme_minimal()+
+    geom_text(
+    aes(label = count),
+    colour = "black", size = 0.5,
+    vjust = 0.1, position = position_dodge(.9)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+Table on treatment and control summaries for D2, D3, D4
+
+```{r}
+data %>% group_by(group) %>% summarise('Default Fee Answer'=mean(fee),'Fee with Personalization'=mean(fee_2_1), 'Fee without Personalization'=mean(fee_2_2,), 'Difference of User A and B'=mean(a_minus_b)) 
+```
+
+**Reconstructing Control and Treatment Groups Based on Understanding Check**
+
+Do control and treatment people have different opinions on whether their data is used for others or not?
+
+```{r}
+data %>% group_by(group, understand_other) %>% summarise(count=n()) %>% ggplot(aes(x = understand_other, y=count, fill=group))+
+  geom_bar(stat='identity', position="dodge") +
+  labs(x = "Answers by Treatment and Control Groups", y = "Number of people",
+       title = "Is your data used to recommend songs to others?", caption="Expected answers: Treatment:no, Control:yes")+
+  theme_minimal()+
+    geom_text(
+    aes(label = count),
+    colour = "black", size = 3,
+    vjust = 0.1, position = position_dodge(.9)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+Copying the data file in order to reconstruct the control and treatment groups based on the understanding check
+
+```{r}
+reconst <- data
+```
+
+```{r}
+#summary of new control and treatment groups
+reconst %>% group_by(understand_you,understand_other) %>% summarise(count=n(),fee=mean(fee))
+```
+
+```{r}
+#reconstructing control and treatment groups based on answers to understanding checks
+reconst <- reconst %>% 
+  mutate("reconst_groups" = if_else((understand_you == "Yes" & understand_other =="Yes"), "reconst_treatment",if_else(understand_you=="Yes" & understand_other=="No", "reconst_control","ignore"))) %>% filter(reconst_groups!="ignore")
+```
+
+1) Testing HA with reconstructed groups
+
+Whitney Mann test on a_minus_b based on control and treatment groups
+
+```{r}
+#no statistically significant difference
+wilcox.test(reconst$fee~reconst$reconst_groups)
+```
+
+2 sample t-test
+
+```{r}
+#no statistically significant difference
+HA_reconst_ttest <-t.test(fee ~ reconst_groups, data = reconst)
+HA_reconst_ttest
+```
+
+
+2) Testing HB with reconstructed groups
+
+Whitney Mann test on a_minus_b based on control and treatment groups
+
+```{r}
+#statistically significant difference is found between treatment and control
+wilcox.test(reconst$a_minus_b~reconst$reconst_groups)
+```
+
+2 sample t-test
+
+```{r}
+#statistically significant difference is found between treatment and control
+HB_reconst_ttest <-t.test(a_minus_b ~ reconst_groups, data = reconst)
+HB_reconst_ttest
+```
+
+```{r}
+reconst %>% group_by(reconst_groups) %>% summarize("Average fee with personalization"=mean(fee_2_1), "Average fee without personalization"=mean(fee_2_2), "Difference"=mean(a_minus_b))
+```
+
+
+**Logistic regression on the dependent variables**
+
+
+Creating binary variables for logistic regression
+
+```{r}
+logistic <- data
+```
+
+```{r}
+logistic$fee_binary[logistic$fee < mean(logistic$fee)] <- 0
+logistic$fee_binary[logistic$fee >= mean(logistic$fee)] <- 1
+logistic$fee_usera_binary[logistic$fee_2_1 < mean(logistic$fee_2_1)] <- 0
+logistic$fee_usera_binary[logistic$fee_2_1 >= mean(logistic$fee_2_1)] <- 1
+logistic$fee_userb_binary[logistic$fee_2_2 < mean(logistic$fee_2_2)] <- 0
+logistic$fee_userb_binary[logistic$fee_2_2 >= mean(logistic$fee_2_2)] <- 1
+```
+
+```{r}
+logistic$benefit_1_binary <- ifelse(logistic$benefit_1 < mean(logistic$benefit_1), 0, 1)
+logistic$benefit_4_binary <- ifelse(logistic$benefit_4 < mean(logistic$benefit_4), 0, 1)
+logistic$benefit_5_binary <- ifelse(logistic$benefit_5 < mean(logistic$benefit_5), 0, 1)
+logistic$preferences_1_binary <- ifelse(logistic$preferences_1 < mean(logistic$preferences_1), 0, 1)
+logistic$preferences_4_binary <- ifelse(logistic$preferences_4 < mean(logistic$preferences_4), 0, 1)
+logistic$preferences_5_binary <- ifelse(logistic$preferences_5 < mean(logistic$preferences_5), 0, 1)
+```
+
+```{r}
+summary(logistic)
+```
+
+Logistic Regression Models
+
+Following the order in the paper, below models were referred in the results
+
+```{r}
+log1 <- glm(fee_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log1)
+```
+
+```{r}
+log4 <- glm(benefit_1_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) +benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log4)
+```
+
+```{r}
+log7 <- glm(preferences_1_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) +benefit_4+benefit_5+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log7)
+```
+
+```{r}
+log9 <- glm(preferences_5_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) +benefit_4+benefit_5+preferences_4+preferences_1, data=logistic, family="binomial")
+summary(log9)
+```
+
+```{r}
+log2 <- glm(fee_usera_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log2)
+```
+
+```{r}
+log3 <- glm(fee_userb_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log3)
+```
+
+```{r}
+log5 <- glm(benefit_4_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) +benefit_1+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log5)
+```
+
+```{r}
+log6 <- glm(benefit_5_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) +benefit_4+benefit_1+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log6)
+```
+
+```{r}
+log8 <- glm(preferences_4_binary ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) +benefit_4+benefit_5+preferences_1+preferences_5, data=logistic, family="binomial")
+summary(log8)
+```
+
+
+
+**Linear regression on the dependent variables**
+
+Following the order in the paper, below models were referred in the results
+
+```{r}
+lm1<- lm(fee ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm1)
+```
+
+```{r}
+lm5 <-lm(benefit_1 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political)+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm5)
+```
+
+```{r}
+lm8 <-lm(preferences_1 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political)+benefit_4+benefit_5+benefit_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm8)
+```
+
+```{r}
+lm10 <-lm(preferences_5 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political)+benefit_4+benefit_5+benefit_1+preferences_4+preferences_1, data=data, na.rm=T)
+summary(lm10)
+```
+
+```{r}
+lm2<- lm(fee_2_1 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm2)
+```
+
+```{r}
+lm3<- lm(fee_2_2 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm3)
+```
+
+```{r}
+lm4<- lm(a_minus_b ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm4)
+```
+
+```{r}
+lm6 <-lm(benefit_4 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political)+benefit_1+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm6)
+
+```
+
+```{r}
+lm7<-lm(benefit_5 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political)+benefit_4+benefit_1+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm7)
+```
+
+```{r}
+lm9 <-lm(preferences_4 ~ as.factor(group)+age+as.factor(X2_Gender)+educ_numeric+income_numeric+platforms_used+used_spotify+ +pers_satis_numeric + as.factor(X5_Political)+benefit_4+benefit_5+benefit_1+preferences_1+preferences_5, data=data, na.rm=T)
+summary(lm9)
+```
+
