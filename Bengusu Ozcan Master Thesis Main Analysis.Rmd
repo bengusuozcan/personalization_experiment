@@ -7,7 +7,7 @@ output:
   html_document: default
   word_document: default
 note: For the data files and reference on which short variable names stand for which
-  fields, refer to the following Github link ""
+  fields, refer to https://github.com/bengusuozcan/personalization_experiment
 ---
 
 ```{r setup, include=FALSE}
@@ -370,21 +370,12 @@ Data summary:
 summary(logistic)
 ```
 
-Logistic Regression Models
-
-Following the order in the paper, below models were referred in the results
+Logistic Regression Models - Below 10 models are all models before simplifying the models based on statistical significance. The simplification process is explained under the "Model Selection" section.
 
 ```{r}
 log1 <- glm(fee_binary ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
 summary(log1)
 ```
-
-```{r}
-log4 <- glm(fee_aminusb_binary ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political) +benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
-summary(log4)
-
-```
-
 
 ```{r}
 log5 <- glm(benefit_1_binary ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political) +benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
@@ -412,6 +403,12 @@ summary(log3)
 ```
 
 ```{r}
+log4 <- glm(fee_aminusb_binary ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political) +benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log4)
+
+```
+
+```{r}
 log6 <- glm(benefit_4_binary ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political) +benefit_1+benefit_5+preferences_1+preferences_4+preferences_5, data=logistic, family="binomial")
 summary(log6)
 ```
@@ -426,11 +423,31 @@ log9 <- glm(preferences_4_binary ~ as.factor(group)+Age+as.factor(Gender)+Educat
 summary(log9)
 ```
 
+Final models referred in the paper after the model selection, following the order in the paper.
 
+```{r}
+log1_simplified <- glm(fee_binary ~ as.factor(Income)+benefit_4, data=logistic, family="binomial")
+summary(log1_simplified)
+```
+
+```{r}
+log5_simplified <- glm(benefit_1_binary ~ as.factor(group)+as.factor(Gender)+Personalization_satisfaction + as.factor(Political) +benefit_4+preferences_5, data=logistic, family="binomial")
+summary(log5_simplified)
+```
+
+```{r}
+log8_simplified_V2 <- glm(preferences_1_binary ~ benefit_5+preferences_4+preferences_5, data=logistic, family="binomial")
+summary(log8_simplified_V2)
+```
+
+```{r}
+log10_simplified <- glm(preferences_5_binary ~ Personalization_satisfaction+benefit_1+preferences_1+preferences_4, data=logistic, family="binomial")
+summary(log10_simplified)
+```
 
 **Linear regression on the dependent variables**
 
-Following the order in the paper, below models were referred in the results
+Linear Regression Models - Below 10 models are all models before feature selection in order to simplify the models based on statistical significance.The simplification process is explained under the "Model Selection" section.
 
 ```{r}
 lm1<- lm(fee ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+Personalization_satisfaction + as.factor(Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data)
@@ -438,12 +455,11 @@ summary(lm1)
 ```
 
 ```{r}
-#due to "prefer not to say" answers creating NAs in Income_numeric, we tested Income_numeric and income as factor and found higher R-squared for income as factor. Hence we will introduce income as factoral categorical variables in rest of the models.
+#due to "prefer not to say" answers creating NAs in Income_numeric, we tested Income_numeric and income as factor and found higher R-squared for income as factor. Hence we will introduce income as factorial categorical variables in rest of the models.
 
 lm1_alternative<- lm(fee ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+Personalization_satisfaction + as.factor(Political) + benefit_1+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data)
-summary(lm1)
+summary(lm1_alternative)
 ```
-
 
 ```{r}
 lm5 <-lm(benefit_1 ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political)+benefit_4+benefit_5+preferences_1+preferences_4+preferences_5, data=data, na.rm=T)
@@ -453,6 +469,12 @@ summary(lm5)
 ```{r}
 lm8 <-lm(preferences_1 ~ as.factor(group)+Age+as.factor(Gender)+Education_numeric+as.factor(Income)+Using_PSPs+Using_Spotify+ +Personalization_satisfaction + as.factor(Political)+benefit_4+benefit_5+benefit_1+preferences_4+preferences_5, data=data, na.rm=T)
 summary(lm8)
+```
+
+```{r}
+lm8_alternative <-lm(preferences_1 ~ benefit_5+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm8_alternative)
+
 ```
 
 ```{r}
@@ -491,18 +513,121 @@ lm9 <-lm(preferences_4 ~ as.factor(group)+Age+as.factor(Gender)+Education_numeri
 summary(lm9)
 ```
 
+Final models referred in the paper after the feature selection, following the order in the paper:
+
+```{r}
+lm1_simplified<- lm(fee ~ as.factor(Income)+benefit_4, data=data)
+summary(lm1_simplified)
+```
+
+```{r}
+lm5_simplified<- lm(benefit_1 ~ as.factor(group)+as.factor(Gender)+Personalization_satisfaction + as.factor(Political)+benefit_4+preferences_5, data=data, na.rm=T)
+summary(lm5_simplified)
+```
+
+```{r}
+lm8_simplified_V2 <-lm(preferences_1 ~ benefit_5+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm8_simplified_V2)
+```
+
+```{r}
+lm10_simplified <-lm(preferences_5 ~ Personalization_satisfaction+ benefit_1+preferences_1+preferences_4, data=data, na.rm=T)
+summary(lm10_simplified)
+```
+
+**Model Simplification**
+
+Following the order in the paper, below models were referred in the results
+
+LM1 simplified to significantly variables only.The multiple R squared has decreased from 7.4% to 3.7%.
+
+```{r}
+lm1_simplified<- lm(fee ~ as.factor(Income)+benefit_4, data=data)
+summary(lm1_simplified)
+```
+
+According to ANOVA analysis, the larger model does not perform significantly better than the simpler model, hence we move forward with the simpler model. 
+
+```{r}
+anova(lm1,lm1_simplified)
+```
+
+LM5 simplified to significantly variables only.The multiple R squared has dropped only slightly from 39.87% to 39.2%.
+
+```{r}
+lm5_simplified<- lm(benefit_1 ~ as.factor(group)+as.factor(Gender)+Personalization_satisfaction + as.factor(Political)+benefit_4+preferences_5, data=data, na.rm=T)
+summary(lm5_simplified)
+```
+
+According to ANOVA analysis, the larger model does not perform significantly better than the simpler model, hence we move forward with the simpler model. 
+
+
+```{r}
+anova(lm5,lm5_simplified)
+```
+
+LM8 simplified to significantly variables only. Age variable was found statistically insignificant in the new model. Age has dropped in the further simplified model. The multiple R squared has dropped from 26.1% to 23.5%. 
+
+```{r}
+lm8_simplified <-lm(preferences_1 ~ Age+ benefit_5+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm8_simplified)
+```
+
+
+```{r}
+lm8_simplified_V2 <-lm(preferences_1 ~ benefit_5+preferences_4+preferences_5, data=data, na.rm=T)
+summary(lm8_simplified_V2)
+```
+
+According to ANOVA analysis, the larger model does not perform significantly better than the simpler model, hence we move forward with the simpler model. 
+
+```{r}
+anova(lm8,lm8_simplified_V2)
+```
+
+LM10 simplified to significantly variables only. The multiple R squared has dropped from 28.6% to 26.7%. 
+
+```{r}
+lm10_simplified <-lm(preferences_5 ~ Personalization_satisfaction+ benefit_1+preferences_4+preferences_1, data=data, na.rm=T)
+summary(lm10_simplified)
+```
+
+According to ANOVA analysis, the larger model does not perform significantly better than the simpler model, hence we move forward with the simpler model. 
+
+```{r}
+anova(lm10,lm10_simplified)
+```
 
 
 **Latex Conversions**
 
+Full versions as a back up, not used in the paper:
 
 ```{r}
 stargazer(lm1, log1, lm5, log5, title="Regression Models on D1 and D5",
 align=TRUE, dep.var.labels=c("D1","Binary D1", "D5","Binary D5"),
 omit.stat=c("LL","ser","f"), no.space=TRUE)
 ```
+
+
 ```{r}
 stargazer(lm8,log8, lm10,log10, title="Regression Models on D8 and D10",
 align=TRUE, dep.var.labels=c("D8","Binary D8","D10","Binary D10"),
+omit.stat=c("LL","ser","f"), no.space=TRUE)
+```
+
+
+Simplified final models, used in the paper:
+
+```{r}
+stargazer(lm1_simplified, log1_simplified, lm5_simplified, log5_simplified, title="Regression Models on Y1 and Y5",
+align=TRUE, dep.var.labels=c("Y1","Binary Y1", "Y5","Binary Y5"),
+omit.stat=c("LL","ser","f"), no.space=TRUE)
+```
+
+
+```{r}
+stargazer(lm8_simplified_V2,log8_simplified_V2, lm10_simplified,log10_simplified, title="Regression Models on Y8 and Y10",
+align=TRUE, dep.var.labels=c("Y8","Binary Y8","Y10","Binary Y10"),
 omit.stat=c("LL","ser","f"), no.space=TRUE)
 ```
