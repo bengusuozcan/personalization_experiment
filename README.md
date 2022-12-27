@@ -1,4 +1,4 @@
-## Should Personalization Be Optional in Paid Streaming Platforms?: Investigating User Data as an Indirect Compensation for Paid Streaming Platforms
+## Should Paid Streaming Services Make Personalization Optional? An Experiment on User Preferences for Personalization
 
 **Author:** Bengusu Ozcan, MA Candidate in Quantitative Methods in Social Sciences, Columbia University
 
