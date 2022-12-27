@@ -42,13 +42,8 @@ IRB Status: Approved by Columbia University IRB
 <figure class="wp-block-image"><img src="http://www.bengusuozcan.com/wp-content/uploads/2021/10/Website-Experiment-Design.png" alt="" class="wp-image-1136"/></figure>
 <!-- /wp:image -->
 
-
-
-[Thesis paper - in progress](https://docs.google.com/document/d/17Dx-AoC2EmwZT_ACsCKQeqgVv6iY3nsX/edit)
-
-[Former research paper that the motivation of this study is based on](https://drive.google.com/file/d/1wE5m3WhmWBPhcZlvpQJUdVGe4XPFu0rG/view)
-
 [Full breakdown of Control Group Questions and Survey Flow](https://docs.google.com/presentation/d/16bSotQaHCHuneAB8LdRDo0jfdE7gLn2c/edit)
 
 [Full breakdown of Treatment Group Questions and Survey Flow](https://docs.google.com/presentation/d/1ijSOqLLCtlGK4sT2G1b1dR4JkNE5BMh6/edit)
+
 Contact: bo2297@columbia.edu
