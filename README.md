@@ -38,6 +38,20 @@ Survey Platform: [Qualtrics (closed for submission)](https://columbiaiserp.iad1.
 
 IRB Status: Approved by Columbia University IRB
 
+**Data Availability**
+------
+
+-Main_Personalization_Preferences_12-18-21-raw_data_Qualtrics.csv: Original file directly downloaded from Qualtrics, includes all 530 participants. Treatment and control group responses are recorded in separate columns coded with “T” and “C” respectively e.g. benefit_4 variable is recorded as “11_C_benefit_4” for the control group and “11_T_benefit_4” for the treatment group.
+
+-Filtered_Personalization_Preferences_12-18-21-raw_data_Qualtrics.csv: Three respondents were filtered based on the understanding check questions. At the very minimum, both the treatment and control group were expected to understand that their data would be used to recommend songs to themselves. 3 participants responded “no” to this question, and were filtered out.
+
+-Cleaned_Modified_Personalization_Preferences_12-18-21-Qualtrics.csv: Using MS Excel tools, a column to identify control and treatment groups was added. Control and treatment columns were consolidated together e.g. column benefit_4 includes answers for both the treatment and control group, identified by the column “group”.
+
+-Cleaned_Modified_Substituted_Personalization_Preferences_12-18-21-Qualtrics.csv: Main data set used in the analysis. Some blank cells (e.g. participants who never used PSPs in real life skipped relevant demographic questions) were substituted with NAs.
+
+-Modified_Platforms_Used_Personalization_Preferences_12-18-21-Qualtrics.csv: A version that is used only for demographic questions relevant to participants’ experience with real life PSPs e.g. which PSPs they use in real life. These answers were recorded as a list in the original data folder and were tokenized in this modified version e.g. original answer “Netflix, Hulu” was tokenized as “Netflix:1, Hulu:1, Spotify:0…”
+
+
 <!-- wp:image {"id":1136} -->
 <figure class="wp-block-image"><img src="http://www.bengusuozcan.com/wp-content/uploads/2021/10/Website-Experiment-Design.png" alt="" class="wp-image-1136"/></figure>
 <!-- /wp:image -->
