@@ -1,0 +1,238 @@
+---
+THIS FILE IS ANONYMIZED FOR THE PURPOSE OF SCIENTIFIC PEER REVIEW OF THE RELEVANT MANUSCRIPT
+
+title: Should Paid Streaming Services Make Personalization Optional? An Experiment on User Preferences for Personalization.
+date: "10/08/2023"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Please install necessary packages as below if not installed yet
+#install.packages("dplyr")
+#install.packages("tidyverse")
+#install.packages("ggplot2")
+#install.packages("gt")
+#install.packages("psych")
+#install.packages("texreg")
+#install.packages("stargazer")
+#install.packages("broom")
+#install.packages("doBy")
+#install.packages("readr")
+#install.packages("reshape") 
+#install.packages("ggfortify")
+library(broom)
+library(stargazer)
+library(texreg)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(gt)
+library(doBy)
+library(psych)
+library (readr)
+library(reshape)
+library(ggfortify)
+```
+
+**Data Ingestion**
+
+```{r}
+#For the purpose of keeping the experiment data private, please download the data file shared below on your local computer. By running the code in this chunk, read them from the relevant path in your local machine by choosing that file manually.
+
+#read Cleaned_Modified_Substituted_Personalization_Preferences_12-18-21-Qualtrics.csv as data 
+data <- read.csv(file.choose())
+```
+
+```{r}
+#separate data into control and treatment groups to be used in some of the analyses. 
+data_control <- data %>% filter(group=='control')
+data_treatment <- data %>% filter(group=='treatment')
+```
+
+```{r}
+
+#Answers to questions about PSP usage is tokenized in this file using Microsoft Excel functionalities. Example action: The original answer "Netlix, Hulu, Amazon Prime" is tokenized in this file as "Netflix: 1, Hulu:1, Spotify:0..."
+
+#For the purpose of keeping the experiment data private, please download the data files shared below on your local computer. By running the code in this chunk, read them from the relevant path in your local machine by choosing that file manually.
+
+#read Modified_Platforms_Used_Personalization_Preferences_12-18-21-Qualtrics.csv from as platforms
+platforms<-read_csv(file.choose())
+```
+
+**Demographics**
+
+```{r}
+#General Demographics
+#Values in Table1
+
+data %>% group_by(group) %>% summarise(max=max(Age),min=min(Age),avg=mean(Age),med=median(Age))
+data %>% summarise(max=max(Age),min=min(Age),avg=mean(Age),med=median(Age))
+table(recoded$Gender,recoded$group)
+table(recoded$Education,recoded$group)
+table(recoded$Income,recoded$group)
+table(recoded$Political,recoded$group)
+data %>% group_by(group, Using_Spotify) %>% summarise(n=n())
+```
+
+```{r}
+#Table 2
+data %>% filter(Platforms != '') %>% group_by(group, Personalization) %>% summarise(n=n())
+```
+
+```{r}
+#Table 3
+data %>% filter(Platforms != '') %>% filter(Personalization != 'Never') %>% group_by(group, Satisfaction) %>% summarise(n=n())
+```
+
+
+```{r}
+#Figure 1 data manipulation to include "all others" option in the relevant survey question.
+
+#Which PSPs Do the Participants Use in Real Life?
+
+platforms2 <- platforms %>% group_by(Platforms) %>% filter(Platforms != "All of the above") %>% summarize(count=n()+1)
+platforms2 %>% ggplot(aes(x=reorder(Platforms,count),y=count))+geom_bar(stat='identity',position='dodge')+labs(y = "Number of people")+
+  theme_minimal()+scale_fill_grey()+
+    geom_text( aes(label = count),colour = "black", size = 3, vjust = 0.3, hjust=-0.2, position = position_dodge(.8))+theme(axis.title.y=element_blank(),panel.grid.major = element_blank(), panel.grid.minor = element_blank())+coord_flip()
+```
+
+**Summary statistics for main dependent variables**
+
+```{r}
+data %>% group_by(group) %>% summarize(count=n(),avg=mean(fee), sd=sd(fee))
+data %>% group_by(group) %>% summarize(count=n(),avg=mean(Personalization_fee_difference), sd=sd(Personalization_fee_difference))
+
+#Y1
+describe(data$fee)
+describe(data_control$fee)
+describe(data_treatment$fee)
+
+#Y2
+describe(data$Personalization_fee_difference)
+describe(data_control$Personalization_fee_difference)
+describe(data_treatment$Personalization_fee_difference)
+```
+
+```{r}
+#Variance of main dependent variables
+
+#Y1
+var(data$fee)
+var(data_control$fee)
+var(data_treatment$fee)
+
+#Y2
+var(data$Personalization_fee_difference)
+var(data_control$Personalization_fee_difference)
+var(data_treatment$Personalization_fee_difference)
+```
+
+
+**Main Hypotheses Tests**
+
+1) Hypothesis A
+
+Normality test 
+
+```{r}
+#Y1 is not normally distributed
+shapiro.test(data$fee)
+```
+
+F-test for equal variances
+
+```{r}
+#there is no significant difference between the variances of Y1 between the two sets of data
+ftest1 <- var.test(fee ~ group, data = data)
+ftest1
+```
+
+2 sample t-test
+```{r}
+#No statistically significant difference between control and treatment groups for Y1
+HA_ttest <-t.test(fee ~ group, data = data, var.equal=TRUE)
+HA_ttest
+```
+
+2) Hypothesis B
+
+Normality test on Y2
+```{r}
+#Y2 is not normally distributed
+shapiro.test(data$Personalization_fee_difference)
+```
+
+F test on Y2
+
+```{r}
+#there is no significant difference between the variances of the two sets of data
+ftest2 <- var.test(Personalization_fee_difference ~ group, data = data)
+ftest2
+```
+
+2 Sample t-test on Y2
+
+```{r}
+HB_ttest2 <-t.test(Personalization_fee_difference  ~ group, data = data, var.equal=T)
+HB_ttest2
+```
+
+Welch sample t-test on Y2
+
+```{r}
+HB_ttest3 <-t.test(Personalization_fee_difference   ~ group, data = data)
+HB_ttest3
+```
+
+
+```{r}
+#Results for statistics explained in the following part of the manuscript: When looked in detail, out of 264 participants in the treatment group, 177 (67\%) thought that the fee with and without personalization should be the same, 73 (28\%) thought the personalization should cost more and 13 (5\%) thought opting out should cost more while out of 263 participants in the control group, 185 (70\%) thought that the fee with and without personalization should be the same, 58 (22\%) thought the personalization should cost more and 21 (8\%) thought opting out should cost more. This indicates that regardless of the explicit information on how their OPD is being leveraged, respondents perceive personalization as an extra service that should be paid for rather than paying for privacy of their data.
+
+data %>% group_by(group, equal_fee) %>% summarise(count=n())
+```
+
+**Further Analysis**
+
+Boxplot:
+
+```{r}
+#difference between the means of the control and the treatment group is observed in benefit_4 and benefit_5
+boxplot_data <- data %>% select(group, benefit_1, benefit_4, benefit_5, preferences_1, preferences_4, preferences_5) %>% melt(id=c("group"))
+ggplot(data = boxplot_data, aes(x=variable, y=value)) + geom_boxplot(aes(fill=group)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(panel.background = element_blank())+ scale_fill_grey(start = 0.6,
+  end = 0.8,
+  aesthetics = "fill") + labs (x="Dependent Variable", y="Average Survey Response")
+```
+
+F-test and t-test analysis:
+
+```{r}
+#there is significant difference between the variances of the two sets of data
+ftest_benefit4 <- var.test(benefit_4 ~ group, data = data)
+ftest_benefit4
+```
+
+```{r}
+#Welch t-test for benefit_4 without equal variances assumption, finds a statistically significant difference
+benefit_4_ttest <-t.test(benefit_4 ~ group, data = data)
+benefit_4_ttest
+```
+
+```{r}
+#there is no significant difference between the variances of the two sets of data
+ftest_benefit5 <- var.test(benefit_5 ~ group, data = data)
+ftest_benefit5
+```
+
+```{r}
+#2 sample t-test for benefit_5 with equal variances assumption, finds a statistically significant difference
+benefit_5_ttest <-t.test(benefit_5 ~ group, data = data, var.equal=T)
+benefit_5_ttest
+```
+
+END OF THE FILE
